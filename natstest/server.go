@@ -2,12 +2,12 @@
 // for use in tests.
 //
 // This project deliberately has no in-memory fake of the bus (see
-// CONTEXT.md and the root package's doc comment): the Sink and the Runner
+// CONTEXT.md and the cqrs package's doc comment): the Sink and the Runner
 // are only meaningfully tested against a real NATS server, because so much
 // of what they guarantee — work-queue competition, fan-out, redelivery,
 // deduplication — is JetStream's behavior, not this library's. natstest
-// exists so every package that needs that real server (natsjs today,
-// others later) starts one the same way.
+// exists so every package that needs that real server (cqrs/natsjs,
+// cronjob and durablejob) starts one the same way.
 package natstest
 
 import (

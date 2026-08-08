@@ -1,6 +1,12 @@
 # Context
 
-Glossary for `nats-cqrs`: a simplified, NATS-native CQRS messaging layer.
+Glossary for `nats-cqrs`: simplified, NATS-native messaging — a CQRS bus,
+Cron Jobs and Durable Jobs.
+
+The glossary covers all three. The CQRS bus owns everything from Message to
+Outbox below; the Cron Job and the Durable Job stand beside it, and the
+terms they need follow after. The three share a broker and the Namespace
+that names their owner — nothing else.
 
 ## Message
 
@@ -74,3 +80,58 @@ relinquished once it has been sent.
 
 A Message that leaves through the Outbox arrives at least once. Duplicates are
 possible and must be harmless.
+
+## Namespace
+
+The owner of a set of jobs: the name a service claims so that its Cron Jobs
+and its Durable Jobs are recognisably its own. A Namespace is part of every
+subject and of every consumer name, so two services that claim different
+Namespaces can declare a job of the same name without ever meeting, while
+every instance of one service must claim the same Namespace to share its
+work.
+
+## Cron Job
+
+A named unit of recurring work, declared in code and scheduled by the
+broker. Every instance of the service that declares it binds to the same
+position, so a firing runs on exactly one of them.
+
+A Cron Job never overlaps itself: the next firing waits for the previous one
+to finish. A failed run is not retried — the job simply runs again at its
+next firing.
+
+## Schedule
+
+When a Cron Job fires, written as an interval, a predefined alias, or a cron
+expression.
+
+A Schedule lives on the server, not in the process: it survives restarts and
+deploys, and changing the expression is what — and all that — moves the
+cadence.
+
+## Tick
+
+One firing of a Schedule, delivered to a single instance of its Cron Job. A
+Tick says when the execution was due and when the next one falls due; it is
+informative only.
+
+A Tick nobody collects in time expires rather than accumulating.
+
+## Durable Job
+
+Long-running imperative work that outlives the request that asked for it. A
+Durable Job is one message the broker holds open: delivered to exactly one
+instance, kept until that instance reports the work fully done, redelivered
+from the beginning if the instance dies.
+
+Because every delivery re-runs the job from the start, its remaining work
+must be re-derivable from durable state. The message identifies what to do,
+never how far it got.
+
+## Dispatch
+
+Starting a Durable Job: publishing the single message that is the job.
+
+The dispatching service need not own the job — it names the Namespace the
+job belongs to — and need not wait for it. A dispatched job is durable from
+the moment it is published, whether or not any instance is running yet.
