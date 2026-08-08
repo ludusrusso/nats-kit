@@ -36,16 +36,16 @@ type Record struct {
 	Data []byte
 }
 
-// Sink accepts Records for delivery. It is the one seam this whole design
-// turns on: the exact same Sink is implemented both by a publisher that
-// writes directly to NATS and by an application's database Outbox, and
-// domain code that only holds a Sink never knows, and never needs to know,
-// which one it has.
+// Publisher accepts Records for delivery. It is the one seam this whole
+// design turns on: the exact same interface is implemented both by a
+// transport that writes directly to NATS and by an application's database
+// Outbox, and domain code that only holds a Publisher never knows, and
+// never needs to know, which one it has.
 //
 // A call to Publish carries a whole batch, so that a batch stays a batch:
-// when the Sink is an Outbox, the batch lands in one transaction, and is
-// therefore either entirely written or not at all.
-type Sink interface {
+// when the Publisher is an Outbox, the batch lands in one transaction, and
+// is therefore either entirely written or not at all.
+type Publisher interface {
 	Publish(ctx context.Context, records ...Record) error
 }
 
@@ -63,7 +63,7 @@ func (h EventHeader) headerID() string   { return h.ID }
 
 // Marshal hydrates m's header (see hydrateHeader — a missing ID or
 // PublishedAt is filled in, m itself is never mutated), validates m's type,
-// and serializes the result into a Record ready to hand to a Sink.
+// and serializes the result into a Record ready to hand to a Publisher.
 //
 // Marshal is exported because it is not only used internally by CommandBus
 // and EventBus: an Outbox implementation accepts Messages directly from

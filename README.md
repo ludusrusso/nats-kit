@@ -53,7 +53,7 @@ placeOrder := cqrs.NewCommandHandler("place_order", func(ctx context.Context, cm
 	// The Handler's "work": a real service would touch its own database
 	// here. This is the exact same events.Publish call a Handler would
 	// make if events had been built with NewEventBus(pub) instead of
-	// NewEventBus(mem) — only the Sink underneath changes.
+	// NewEventBus(mem) — only the Publisher underneath changes.
 	return events.Publish(ctx, OrderPlaced{
 		EventHeader: cqrs.NewEventHeader(),
 		OrderID:     "order-1",
@@ -136,13 +136,13 @@ Message is a new Go type with a new name. The old and new versions coexist
 and ignore each other — there is no built-in conversion between them, by
 design.
 
-## The `Sink` seam
+## The `Publisher` seam
 
 Everything that leaves a process through this library goes through one
 interface:
 
 ```go
-type Sink interface {
+type Publisher interface {
 	Publish(ctx context.Context, records ...Record) error
 }
 ```
@@ -150,12 +150,12 @@ type Sink interface {
 `natsjs.Publisher` implements it by writing straight to NATS JetStream. A
 database-backed Outbox implements it by appending to a table inside the
 caller's own transaction. `CommandBus` and `EventBus` are built from nothing
-but a `Sink`, so domain code that holds one can never tell, and never needs
-to tell, which kind it has:
+but a `cqrs.Publisher`, so domain code that holds one can never tell, and
+never needs to tell, which kind it has:
 
 ```go
 // Inside a database transaction, via an Outbox:
-events := cqrs.NewEventBus(myOutboxSink)
+events := cqrs.NewEventBus(myOutboxPublisher)
 // Straight to NATS:
 events := cqrs.NewEventBus(natsPublisher)
 // Either way, the call below is identical.
@@ -167,10 +167,10 @@ from reading the code alone.
 
 ## The Outbox
 
-The `cqrs/outbox` package implements the Outbox half of the Sink seam. An
-application provides exactly two things:
+The `cqrs/outbox` package implements the Outbox half of the Publisher seam.
+An application provides exactly two things:
 
-1. A `cqrs.Sink` bound to its own transaction, used to accept Messages.
+1. A `cqrs.Publisher` bound to its own transaction, used to accept Messages.
 2. An `outbox.Reader`, whose one method, `ReadForSend`, hands pending
    Records over for sending as a single, indivisible act — see
    [`outbox.Reader`'s doc comment](cqrs/outbox/reader.go) for the full
@@ -180,9 +180,9 @@ application provides exactly two things:
 `outbox.Memory` is a dependency-free, in-memory implementation of both,
 used above and throughout this repo's own tests — it is executable
 documentation of the contract, not just a mock. `outbox.Forwarder` is the
-loop that drains a `Reader` into a `Sink`; nothing starts it automatically,
-because where it runs (a goroutine, a sidecar, a cron job calling `Once`
-directly) is a deployment decision left to the caller.
+loop that drains a `Reader` into a `Publisher`; nothing starts it
+automatically, because where it runs (a goroutine, a sidecar, a cron job
+calling `Once` directly) is a deployment decision left to the caller.
 
 Delivery through the Outbox is **at-least-once**: a publish can succeed and
 the transaction that relinquishes it can still fail to commit, in which

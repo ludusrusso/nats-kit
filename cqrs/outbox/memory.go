@@ -7,14 +7,14 @@ import (
 	"github.com/ludusrusso/nats-kit/cqrs"
 )
 
-// Memory implements both cqrs.Sink and Reader.
+// Memory implements both cqrs.Publisher and Reader.
 var (
-	_ cqrs.Sink = (*Memory)(nil)
-	_ Reader    = (*Memory)(nil)
+	_ cqrs.Publisher = (*Memory)(nil)
+	_ Reader         = (*Memory)(nil)
 )
 
 // Memory is a reference, dependency-free implementation of both
-// cqrs.Sink and Reader, backed by nothing but a slice guarded by a
+// cqrs.Publisher and Reader, backed by nothing but a slice guarded by a
 // mutex — no database. It exists for two reasons: it makes this package,
 // and application code built on it, testable with no database at all; and
 // it is executable documentation of the read-delete-send-commit contract
@@ -48,9 +48,9 @@ func NewMemory() *Memory {
 	return &Memory{}
 }
 
-// Publish implements cqrs.Sink: it appends records to the pending set.
+// Publish implements cqrs.Publisher: it appends records to the pending set.
 //
-// A real Outbox's Sink implementation runs this step inside the
+// A real Outbox's Publisher implementation runs this step inside the
 // application's own database transaction, alongside the very state change
 // that produced these Records — that is what makes the Outbox durable and
 // transactional. Memory has no such transaction to join (it has no

@@ -13,7 +13,7 @@ import (
 )
 
 // Publisher publishes cqrs.Records directly to NATS JetStream. It
-// implements cqrs.Sink, so a CommandBus or EventBus built on it sends
+// implements cqrs.Publisher, so a CommandBus or EventBus built on it sends
 // straight to the commands/events streams — no Outbox involved.
 //
 // Call Close when a Publisher will no longer be used, typically as part of
@@ -24,8 +24,8 @@ type Publisher struct {
 	logger *slog.Logger
 }
 
-// Compile-time check that Publisher satisfies cqrs.Sink.
-var _ cqrs.Sink = (*Publisher)(nil)
+// Compile-time check that Publisher satisfies cqrs.Publisher.
+var _ cqrs.Publisher = (*Publisher)(nil)
 
 // NewPublisher builds a Publisher on top of nc and ensures the streams it
 // publishes into exist (see EnsureStreams — an existing stream is never

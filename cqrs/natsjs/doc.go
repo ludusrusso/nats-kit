@@ -1,7 +1,8 @@
 // Package natsjs is the NATS JetStream transport for
 // github.com/ludusrusso/nats-kit/cqrs: it provisions the streams Commands and
-// Events travel through, publishes Records to them (Publisher, a
-// cqrs.Sink), and runs registered Handlers against them (Runner).
+// Events travel through, publishes Records to them (Publisher, this
+// package's cqrs.Publisher), and runs registered Handlers against them
+// (Runner).
 //
 // The vocabulary used throughout this package follows the same project
 // glossary as the cqrs package — see CONTEXT.md at the repository root —

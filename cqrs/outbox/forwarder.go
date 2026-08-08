@@ -51,7 +51,7 @@ func WithLogger(l *slog.Logger) Option {
 }
 
 // Forwarder is the loop that drains a Reader (an application's Outbox)
-// into a cqrs.Sink — typically a Sink that publishes straight to NATS.
+// into a cqrs.Publisher — typically one that publishes straight to NATS.
 // It is the "forwarder" the Outbox glossary entry and ADR 0002 refer to.
 //
 // Forwarder never starts itself. Nothing in this package spawns a
@@ -62,7 +62,7 @@ func WithLogger(l *slog.Logger) Option {
 // library only exposes the loop.
 type Forwarder struct {
 	reader   Reader
-	sink     cqrs.Sink
+	sink     cqrs.Publisher
 	batch    int
 	interval time.Duration
 	logger   *slog.Logger
@@ -71,7 +71,7 @@ type Forwarder struct {
 // NewForwarder builds a Forwarder that drains r into sink, configured by
 // opts. See WithBatchSize, WithPollInterval and WithLogger for the
 // available options and their defaults.
-func NewForwarder(r Reader, sink cqrs.Sink, opts ...Option) *Forwarder {
+func NewForwarder(r Reader, sink cqrs.Publisher, opts ...Option) *Forwarder {
 	f := &Forwarder{
 		reader:   r,
 		sink:     sink,
@@ -87,9 +87,9 @@ func NewForwarder(r Reader, sink cqrs.Sink, opts ...Option) *Forwarder {
 
 // Once drives a single pass: it asks the Reader to hand over up to the
 // configured batch size of pending Records and publishes them through the
-// Sink, as one ReadForSend call — so the send callback Reader.ReadForSend
-// requires is simply f.sink.Publish. It returns how many Records were
-// sent.
+// Publisher, as one ReadForSend call — so the send callback
+// Reader.ReadForSend requires is simply the Publisher's own Publish. It
+// returns how many Records were sent.
 //
 // Once is useful on its own, without Run: in tests, and for callers that
 // want to drive the Outbox on their own schedule — a cron job, a queue

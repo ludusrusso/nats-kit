@@ -43,7 +43,7 @@ type OrderPlaced struct {
 // Forwarder drains it from there. The Command goes straight to NATS through
 // a Publisher. Both paths end up on the exact same cqrs.EventBus /
 // cqrs.CommandBus API: the domain code that calls Publish or Send never
-// knows, or needs to know, which kind of Sink is underneath.
+// knows, or needs to know, which kind of cqrs.Publisher is underneath.
 func Example() {
 	// An Example has no *testing.T, so it uses StartServer rather than
 	// Start. In a real test, natstest.Start(t) is the one you want.
@@ -81,7 +81,7 @@ func Example() {
 		}
 		// This is the exact same call a Handler would make if events had
 		// been built with NewEventBus(pub) instead of NewEventBus(mem) —
-		// only the Sink swapped, from Outbox to direct NATS.
+		// only the cqrs.Publisher swapped, from Outbox to direct NATS.
 		if err := events.Publish(ctx, evt); err != nil {
 			return err
 		}

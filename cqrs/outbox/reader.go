@@ -7,7 +7,7 @@ import (
 )
 
 // Reader is the second of the two things an application must provide to
-// have an Outbox. (The first is just cqrs.Sink, used to accept
+// have an Outbox. (The first is just cqrs.Publisher, used to accept
 // Messages into the Outbox in the first place — see the package doc.)
 // ReadForSend hands pending Records over for sending.
 //

@@ -15,52 +15,53 @@
 // The Outbox is defined by two things the application must provide, never
 // by a particular database:
 //
-//   - A way to accept Messages: cqrs.Sink, implemented by something the
+//   - A way to accept Messages: cqrs.Publisher, implemented by something the
 //     application constructs bound to a transaction it already opened, so
-//     this library never sees that transaction handle. This package does
-//     not redeclare Sink — reusing the cqrs package's own transport seam is
+//     this library never sees that transaction handle. This package does not
+//     redeclare Publisher — reusing the cqrs package's own transport seam is
 //     exactly what makes an Outbox and a direct NATS publisher
-//     interchangeable to domain code (see "One Sink, two meanings" below).
+//     interchangeable to domain code (see "One Publisher, two meanings"
+//     below).
 //   - A way to hand Messages over for sending: Reader (see reader.go).
 //     ReadForSend hands over and sends as a single, indivisible act,
 //     because a Message is only relinquished once it has actually been
 //     sent — the Outbox glossary entry's central rule.
 //
-// # One Sink, two meanings
+// # One Publisher, two meanings
 //
 // Domain code should never need to know, or care, whether it is writing
 // into an Outbox or publishing straight to NATS. cqrs.CommandBus and
 // cqrs.EventBus already provide exactly that symmetry, because both are
-// built from nothing but a Sink. This package therefore does not, and must
-// not, define its own bus types — doing so would duplicate a symmetry the
-// cqrs package already gives away for free. Compare:
+// built from nothing but a cqrs.Publisher. This package therefore does not,
+// and must not, define its own bus types — doing so would duplicate a
+// symmetry the cqrs package already gives away for free. Compare:
 //
-//	// Inside a database transaction: publish through the Outbox. sink is
+//	// Inside a database transaction: publish through the Outbox. pub is
 //	// bound to tx, and this package's Reader will later drain what lands
 //	// here — in the same transaction as the state change that caused it.
-//	sink := myapp.NewTxOutboxSink(tx)
-//	events := cqrs.NewEventBus(sink)
+//	pub := myapp.NewTxOutboxPublisher(tx)
+//	events := cqrs.NewEventBus(pub)
 //	events.Publish(ctx, OrderCreated{OrderID: id})
 //
 //	// Outside any transaction: publish straight to NATS.
-//	sink := natsPublisher // e.g. a JetStream-backed cqrs.Sink
-//	events := cqrs.NewEventBus(sink)
+//	pub := natsPublisher // e.g. a JetStream-backed cqrs.Publisher
+//	events := cqrs.NewEventBus(pub)
 //	events.Publish(ctx, OrderCreated{OrderID: id})
 //
 // Both calls to events.Publish above are the exact same code. Nothing about
-// EventBus changes; only the Sink handed to NewEventBus at construction
+// EventBus changes; only the Publisher handed to NewEventBus at construction
 // time does — that single substitution is what lets a service move a given
 // Event from "published in-transaction, via the Outbox" to "published
 // directly" (or back) without touching the code that decided to publish it.
 //
 // # Draining the Outbox
 //
-// Forwarder is the loop that drains a Reader into a cqrs.Sink — see
+// Forwarder is the loop that drains a Reader into a cqrs.Publisher — see
 // forwarder.go. It never starts itself: where it runs is a deployment
 // decision left entirely to the caller.
 //
-// Memory is a dependency-free, in-memory implementation of both Sink and
-// Reader — see memory.go. It makes this package (and code built on it)
+// Memory is a dependency-free, in-memory implementation of both Publisher
+// and Reader — see memory.go. It makes this package (and code built on it)
 // testable without a real database, and its comments walk through exactly
 // which line implements which step of the Reader contract.
 package outbox
