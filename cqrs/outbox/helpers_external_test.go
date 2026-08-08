@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs"
 )
 
 // testOrderCreated is a fixture Event type shared across the tests in this

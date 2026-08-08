@@ -12,7 +12,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs"
 )
 
 // Runner registers Handlers and runs them against NATS JetStream. For every

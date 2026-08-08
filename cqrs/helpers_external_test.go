@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs"
 )
 
 // testCreateOrder and testOrderCreated are fixture Message types shared

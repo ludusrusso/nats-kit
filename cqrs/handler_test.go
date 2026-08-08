@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs"
 )
 
 // orderService's OnOrderCreated method is used to prove that

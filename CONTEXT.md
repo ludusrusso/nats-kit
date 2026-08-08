@@ -1,6 +1,6 @@
 # Context
 
-Glossary for `nats-cqrs`: simplified, NATS-native messaging — a CQRS bus,
+Glossary for `nats-kit`: simplified, NATS-native messaging — a CQRS bus,
 Cron Jobs and Durable Jobs.
 
 The glossary covers all three. The CQRS bus owns everything from Message to

@@ -9,9 +9,9 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
-	"github.com/ludusrusso/nats-cqrs/cqrs/natsjs"
-	"github.com/ludusrusso/nats-cqrs/natstest"
+	"github.com/ludusrusso/nats-kit/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs/natsjs"
+	"github.com/ludusrusso/nats-kit/natstest"
 )
 
 // waitForConsumer polls until a durable consumer named durable exists on

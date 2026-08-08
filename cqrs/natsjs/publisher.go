@@ -9,7 +9,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs"
 )
 
 // Publisher publishes cqrs.Records directly to NATS JetStream. It

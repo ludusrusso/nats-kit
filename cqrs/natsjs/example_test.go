@@ -7,10 +7,10 @@ import (
 
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
-	"github.com/ludusrusso/nats-cqrs/cqrs/natsjs"
-	"github.com/ludusrusso/nats-cqrs/cqrs/outbox"
-	"github.com/ludusrusso/nats-cqrs/natstest"
+	"github.com/ludusrusso/nats-kit/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs/natsjs"
+	"github.com/ludusrusso/nats-kit/cqrs/outbox"
+	"github.com/ludusrusso/nats-kit/natstest"
 )
 
 // PlaceOrder is a Command: an intent addressed to exactly one Handler.

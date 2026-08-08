@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs"
 )
 
 func TestDeadLetter_JSONRoundTrip(t *testing.T) {

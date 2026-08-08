@@ -7,8 +7,8 @@ import (
 
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs/natsjs"
-	"github.com/ludusrusso/nats-cqrs/natstest"
+	"github.com/ludusrusso/nats-kit/cqrs/natsjs"
+	"github.com/ludusrusso/nats-kit/natstest"
 )
 
 func TestEnsureStreams_CreatesTheThreeStreamsWithExpectedDefaults(t *testing.T) {

@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
-	"github.com/ludusrusso/nats-cqrs/cqrs/natsjs"
-	"github.com/ludusrusso/nats-cqrs/natstest"
+	"github.com/ludusrusso/nats-kit/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs/natsjs"
+	"github.com/ludusrusso/nats-kit/natstest"
 )
 
 func TestRunner_DefaultConcurrencyIsExactlyOnePerHandler(t *testing.T) {

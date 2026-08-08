@@ -11,7 +11,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/ludusrusso/nats-cqrs/cronjob"
+	"github.com/ludusrusso/nats-kit/cronjob"
 )
 
 // waitUntil polls cond every 10ms until it reports true, or fails the test

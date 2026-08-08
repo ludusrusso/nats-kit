@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ludusrusso/nats-cqrs/durablejob"
-	"github.com/ludusrusso/nats-cqrs/natstest"
+	"github.com/ludusrusso/nats-kit/durablejob"
+	"github.com/ludusrusso/nats-kit/natstest"
 )
 
 func TestRunner_DispatchedJobIsDeliveredOnceAndAckedOnSuccess(t *testing.T) {

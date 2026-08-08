@@ -3,7 +3,7 @@ package outbox
 import (
 	"context"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs"
 )
 
 // Reader is the second of the two things an application must provide to

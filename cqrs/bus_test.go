@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs"
 )
 
 func TestCommandBus_Send_BatchesInOneSinkCall(t *testing.T) {

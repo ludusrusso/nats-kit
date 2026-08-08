@@ -1,4 +1,4 @@
-module github.com/ludusrusso/nats-cqrs
+module github.com/ludusrusso/nats-kit
 
 go 1.26.4
 

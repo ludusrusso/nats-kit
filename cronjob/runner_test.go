@@ -9,8 +9,8 @@ import (
 
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/ludusrusso/nats-cqrs/cronjob"
-	"github.com/ludusrusso/nats-cqrs/natstest"
+	"github.com/ludusrusso/nats-kit/cronjob"
+	"github.com/ludusrusso/nats-kit/natstest"
 )
 
 // tickTimeout bounds how long a test waits for server-generated Ticks of a

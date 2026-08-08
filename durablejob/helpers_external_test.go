@@ -11,7 +11,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/ludusrusso/nats-cqrs/durablejob"
+	"github.com/ludusrusso/nats-kit/durablejob"
 )
 
 // streamName and consumerNameFor spell out, from the outside, the names the

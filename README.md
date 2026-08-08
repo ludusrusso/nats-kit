@@ -1,10 +1,10 @@
-# nats-cqrs
+# nats-kit
 
-This repository holds three sibling NATS-native primitives — the CQRS bus,
-Cron Jobs and Durable Jobs — that share nothing but the embedded test
+`nats-kit` holds three sibling NATS-native primitives, in Go — the CQRS
+bus, Cron Jobs and Durable Jobs — that share nothing but the embedded test
 server, each owning its own JetStream stream.
 
-`nats-cqrs` is a small CQRS messaging layer over NATS JetStream, in Go. JSON
+The **CQRS bus** is a small CQRS messaging layer over NATS JetStream. JSON
 only, subjects derived from Go type names: a Command goes to exactly one
 Handler, an Event fans out to every Handler that wants it. An optional
 Outbox lets a Message be published in the same transaction as the state
@@ -13,7 +13,7 @@ rolled back. It lives in `cqrs`, with its JetStream transport in
 `cqrs/natsjs` and the Outbox in `cqrs/outbox`.
 
 ```
-go get github.com/ludusrusso/nats-cqrs
+go get github.com/ludusrusso/nats-kit
 ```
 
 ## Example
@@ -78,10 +78,10 @@ forwarder := outbox.NewForwarder(mem, pub)
 forwarder.Once(ctx)
 ```
 
-## What this is not
+## What the CQRS bus is not
 
 - Not an event store. There is no replay, no append-only log a Handler
-  reads back — once delivered, `nats-cqrs` is done with a Message.
+  reads back — once delivered, `cqrs` is done with a Message.
 - No read models or projections. Building one is ordinary application
   code: an Event Handler that writes to your own database.
 - No request/reply. A Command is fire-and-forget; `CommandBus.Send` reports
@@ -114,7 +114,7 @@ without the tag, Go promotes the header's `ID`/`PublishedAt`/`Metadata`
 fields inline into the message's own JSON, and a domain field whose tag
 happens to collide with `"id"`, `"published_at"` or `"metadata"` silently
 destroys the message's identity — no panic, no error, just a broken
-envelope on the wire. `nats-cqrs` detects this at validation time (every
+envelope on the wire. `cqrs` detects this at validation time (every
 `Handler` is checked at `Register`, every outgoing `Message` at `Marshal`)
 and refuses to start rather than let it happen.
 
@@ -259,6 +259,10 @@ runner.Register(
 go runner.Run(ctx)
 ```
 
+[`cronjob/example_test.go`](cronjob/example_test.go) is that snippet made
+runnable, on the embedded server, waiting for two real Ticks: `go test -run
+Example ./cronjob/`.
+
 A `Tick` carries `ScheduledAt`, when the execution was due, and `NextAt`,
 when the next one falls due. Both are informative; nothing the handler must
 do depends on them, and `NextAt` is the zero time when the server
@@ -325,6 +329,9 @@ go runner.Run(ctx)
 dispatcher, _ := durablejob.NewDispatcher(ctx, nc)
 dispatcher.Dispatch(ctx, "billing", "reindex_tenant", []byte("tenant-1"))
 ```
+
+[`durablejob/example_test.go`](durablejob/example_test.go) is that snippet
+made runnable, on the embedded server: `go test -run Example ./durablejob/`.
 
 `Execute` must be re-runnable, because a redelivery re-runs it from the
 beginning. It has to re-derive its remaining work from durable state — rows

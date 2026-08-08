@@ -7,7 +7,7 @@ import (
 
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/ludusrusso/nats-cqrs/natstest"
+	"github.com/ludusrusso/nats-kit/natstest"
 )
 
 func TestStart_ReturnsAWorkingJetStreamEnabledConnection(t *testing.T) {

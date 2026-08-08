@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
-	"github.com/ludusrusso/nats-cqrs/cqrs/natsjs"
+	"github.com/ludusrusso/nats-kit/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs/natsjs"
 )
 
 // testCreateOrder and testOrderCreated are fixture Message types shared

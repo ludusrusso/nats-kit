@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
-	"github.com/ludusrusso/nats-cqrs/cqrs/outbox"
+	"github.com/ludusrusso/nats-kit/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs/outbox"
 )
 
 func TestPublish_LandsInOutbox_NotYetAtSink(t *testing.T) {

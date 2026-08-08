@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
-	"github.com/ludusrusso/nats-cqrs/cqrs/outbox"
+	"github.com/ludusrusso/nats-kit/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs/outbox"
 )
 
 // publishN publishes n distinct Events into bus, failing the test on error.

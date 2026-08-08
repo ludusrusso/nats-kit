@@ -1,4 +1,4 @@
-// Package outbox provides the transactional-outbox half of nats-cqrs: the
+// Package outbox provides the transactional-outbox half of the CQRS bus: the
 // durable buffer a Message may pass through on its way out, so that
 // emitting a Message can never race the database change that caused it.
 // See the "Outbox" entry in CONTEXT.md at the repository root for the

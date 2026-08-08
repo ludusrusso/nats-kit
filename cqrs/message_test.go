@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs"
 )
 
 func TestNewCommandHeader(t *testing.T) {

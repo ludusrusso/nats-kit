@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ludusrusso/nats-cqrs/cronjob"
-	"github.com/ludusrusso/nats-cqrs/natstest"
+	"github.com/ludusrusso/nats-kit/cronjob"
+	"github.com/ludusrusso/nats-kit/natstest"
 )
 
 func TestNew_RejectsANilConnection(t *testing.T) {

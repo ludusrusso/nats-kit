@@ -9,9 +9,9 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"github.com/ludusrusso/nats-cqrs/cqrs"
-	"github.com/ludusrusso/nats-cqrs/cqrs/natsjs"
-	"github.com/ludusrusso/nats-cqrs/natstest"
+	"github.com/ludusrusso/nats-kit/cqrs"
+	"github.com/ludusrusso/nats-kit/cqrs/natsjs"
+	"github.com/ludusrusso/nats-kit/natstest"
 )
 
 // TestRunner_PanickingHandlerIsRetriedThenDeadLetteredWithoutKillingTheRunner
