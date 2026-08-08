@@ -1,0 +1,19 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Coverage
+*.out
+
+# Go workspace files (module-local; not part of this library's build)
+go.work
+go.work.sum
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
