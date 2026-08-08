@@ -1,8 +1,9 @@
 # nats-kit
 
-`nats-kit` holds three sibling NATS-native primitives, in Go — the CQRS
-bus, Cron Jobs and Durable Jobs — that share nothing but the embedded test
-server, each owning its own JetStream stream.
+`nats-kit` holds four sibling NATS-native primitives, in Go — the CQRS
+bus, Cron Jobs, Durable Jobs and a Cache — that share nothing but the
+embedded test server, each owning its own JetStream stream, or, for the
+Cache, its own KV bucket.
 
 The **CQRS bus** is a small CQRS messaging layer over NATS JetStream. JSON
 only, subjects derived from Go type names: a Command goes to exactly one
@@ -380,11 +381,61 @@ taste; [ADR 0003](docs/adr/0003-cron-jobs-on-jetstream-scheduled-messages.md)
 and [ADR 0004](docs/adr/0004-durable-jobs-redeliver-until-done.md) record
 why.
 
+## Cache
+
+The `cache` package memoises an expensive answer where every replica can
+find it: a generic, single-flight, JSON-encoded cache over a KV substrate —
+a JetStream KV bucket in `cache/natskv`, an in-process map in
+`cache.NewMemory`.
+
+```go
+store, _ := natskv.New(ctx, nc, natskv.Config{Bucket: "customers", TTL: time.Minute})
+customers := cache.New[Customer](store)
+
+// The Loader runs only on a miss; concurrent misses on one key share it.
+c, err := customers.Get(ctx, id, func(ctx context.Context) (Customer, error) {
+	return db.FindCustomer(ctx, id)
+})
+```
+
+[`cache/example_test.go`](cache/example_test.go) is that snippet made
+runnable, on the embedded server: `go test -run Example ./cache/`.
+
+**The substrate owns the TTL**, and that is the one thing to understand
+here: there is no per-entry expiry anywhere in the API. A store is built
+with a single lifetime — `NewMemory(ttl)`, or the bucket's `MaxAge` — that
+every entry in it shares, so one cache is one bucket and one staleness
+budget. `natskv` prefixes its buckets with `cache_`, so `cache_customers`
+above is backed by the `KV_cache_customers` stream, always memory-storage:
+cache entries are disposable, and a broker restart costs a cold cache and
+nothing else.
+
+Three behaviours are layered on top, and each exists for a failure the
+caller would otherwise have to handle:
+
+- **Single-flight.** Concurrent misses on the same key share one `Loader`
+  call. Each waiter selects on its own context; the `Loader` itself runs
+  under the context of the caller that started it, so wrap it in
+  `context.WithoutCancel` if one caller giving up must not abort it.
+- **Degraded mode.** If the substrate returns anything but a miss — broker
+  unreachable, bucket gone — the `Loader` is called and its result returned
+  **uncached**. An outage costs latency, never errors.
+- **Hit validation.** `cache.WithHitValidator(func(v V) bool)` installs a
+  predicate every hit must pass; one that fails is treated as a miss and
+  overwritten. It is how a value that can die before the substrate's TTL —
+  a cached token reaching its own `exp` — heals itself.
+
+A `Loader` error is never cached, so nothing negative is ever stored: a
+failure is retried on the next call rather than remembered. See
+[ADR 0005](docs/adr/0005-a-cache-entry-lives-as-long-as-its-substrate-says.md)
+for why the TTL lives in the substrate, and why negative caching needs a
+bounded substrate before it can exist at all.
+
 ## Testing
 
 `natstest.Start(t)` starts a real, embedded, JetStream-enabled `nats-server`
 per test and returns a connection plus a cleanup function. It is the one
-thing all three primitives share:
+thing all four primitives share:
 
 ```go
 nc, cleanup := natstest.Start(t)
@@ -400,9 +451,9 @@ confidence about exactly the hard parts.
 
 - [`CONTEXT.md`](CONTEXT.md) — the project glossary (Message, Header,
   Command, Event, Handler, Dead Letter, Outbox, Cron Job, Schedule, Tick,
-  Durable Job, Dispatch, Namespace). The vocabulary above follows it
-  throughout.
-- [`docs/adr/`](docs/adr/) — the four decisions referenced above, recorded
+  Durable Job, Dispatch, Namespace, Cache, Substrate, Loader, Hit
+  Validator). The vocabulary above follows it throughout.
+- [`docs/adr/`](docs/adr/) — the five decisions referenced above, recorded
   in full.
 
 ## License

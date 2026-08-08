@@ -1,12 +1,13 @@
 # Context
 
 Glossary for `nats-kit`: simplified, NATS-native messaging — a CQRS bus,
-Cron Jobs and Durable Jobs.
+Cron Jobs and Durable Jobs — and a Cache.
 
-The glossary covers all three. The CQRS bus owns everything from Message to
+The glossary covers all four. The CQRS bus owns everything from Message to
 Outbox below; the Cron Job and the Durable Job stand beside it, and the
-terms they need follow after. The three share a broker and the Namespace
-that names their owner — nothing else.
+terms they need follow after. Those three share a broker and the Namespace
+that names their owner — nothing else. The Cache comes last and shares even
+less: the broker, and nothing beside it.
 
 ## Message
 
@@ -135,3 +136,37 @@ Starting a Durable Job: publishing the single message that is the job.
 The dispatching service need not own the job — it names the Namespace the
 job belongs to — and need not wait for it. A dispatched job is durable from
 the moment it is published, whether or not any instance is running yet.
+
+## Cache
+
+A shared memory of an answer that was expensive to obtain, kept under a key
+so that asking again is cheap. A Cache holds one kind of value, and every
+instance of every service bound to it sees the same entries.
+
+A Cache is an optimisation and never a source of truth: an entry may be
+absent at any moment, and everything a Cache does when asked for one it does
+not have is ask for it again. It therefore never remembers a failure — a
+failure is not an answer.
+
+## Substrate
+
+Where a Cache keeps its entries, and the sole owner of how long they live: a
+Substrate carries one lifetime, shared by every entry in it. Nothing about a
+single entry can be older or younger than that.
+
+A Substrate that cannot be reached does not break the Cache: the answer is
+obtained the expensive way and returned unremembered, so an outage costs
+time and never correctness.
+
+## Loader
+
+How an answer is obtained when the Cache does not hold it. Callers asking for
+the same key at the same time share a single Loader — that is what a Cache
+saves, beyond the entries it holds.
+
+## Hit Validator
+
+An optional test an entry must pass to count as an answer, for values that
+can die before their Substrate's lifetime says they should. An entry that
+fails it is not an answer at all: it is obtained again and replaces the one
+that failed.
