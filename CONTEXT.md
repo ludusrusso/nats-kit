@@ -4,7 +4,7 @@ Glossary for `nats-kit`: simplified, NATS-native messaging — a CQRS bus,
 Cron Jobs and Durable Jobs — and a Cache.
 
 The glossary covers all four. The CQRS bus owns everything from Message to
-Outbox below; the Cron Job and the Durable Job stand beside it, and the
+Aggregate below; the Cron Job and the Durable Job stand beside it, and the
 terms they need follow after. Those three share a broker and the Namespace
 that names their owner — nothing else. The Cache comes last and shares even
 less: the broker, and nothing beside it.
@@ -81,6 +81,19 @@ relinquished once it has been sent.
 
 A Message that leaves through the Outbox arrives at least once. Duplicates are
 possible and must be harmless.
+
+## Aggregate
+
+A domain object that decides and, having decided, records the Events its
+decision produced — in the order it produced them, and without publishing any
+of them itself.
+
+An Event an Aggregate has recorded is **not history yet**: it becomes history
+when whoever persists the Aggregate drains it, taking the recorded Events for
+publication and leaving the Aggregate with nothing left to take. Recording and
+draining are two acts with two owners, and everything else follows from that:
+an Aggregate drained twice states its facts once, and an Aggregate never
+drained states them to nobody.
 
 ## Namespace
 

@@ -166,6 +166,52 @@ events.Publish(ctx, OrderCreated{OrderID: id})
 This is the seam the whole design turns on, and the easiest thing to miss
 from reading the code alone.
 
+## Aggregates
+
+Domain code sits on the near side of that seam, and `cqrs.Aggregate` is what
+lets it stay there: an embeddable buffer of the Events an object has recorded
+and not yet published. The object records facts; whoever persists it drains
+them into a `Publisher`.
+
+```go
+type Order struct {
+	cqrs.Aggregate
+	ID     string
+	Status string
+}
+
+func (o *Order) Ship() {
+	o.Status = "shipped"
+	o.Record(OrderShipped{EventHeader: cqrs.NewEventHeader(), OrderID: o.ID})
+}
+
+// The repository drains inside the transaction that saves the Order, into the
+// Outbox Publisher bound to it — so nothing is published for a change that
+// then rolls back. Swap that Publisher for natsjs's and the same call
+// publishes directly; Order itself does not change.
+func (r *Repo) Save(ctx context.Context, o *Order) error {
+	return r.inTx(ctx, func(tx *sql.Tx) error {
+		if err := r.write(ctx, tx, o); err != nil {
+			return err
+		}
+		return cqrs.Drain(ctx, r.outbox(tx), o)
+	})
+}
+```
+
+`Drain` pulls everything recorded and hands it to the `Publisher` as one
+batch, in recording order. The pull is what makes it safe to call
+unconditionally: the aggregate is left empty, so a second `Drain` publishes
+nothing, and draining an aggregate that recorded nothing never touches the
+`Publisher` at all. Note that a failed `Drain` has already pulled — what a
+caller retries is the unit of work, not the `Drain`.
+
+It takes Events only, deliberately: an aggregate states facts about itself,
+while a Command is an intent that whoever forms it sends.
+[ADR 0006](docs/adr/0006-an-aggregate-records-whoever-persists-it-drains.md)
+records that asymmetry, and why the `Publisher` is an argument rather than
+something `Drain` reads out of the context.
+
 ## The Outbox
 
 The `cqrs/outbox` package implements the Outbox half of the Publisher seam.
@@ -450,10 +496,10 @@ confidence about exactly the hard parts.
 ## Further reading
 
 - [`CONTEXT.md`](CONTEXT.md) — the project glossary (Message, Header,
-  Command, Event, Handler, Dead Letter, Outbox, Cron Job, Schedule, Tick,
-  Durable Job, Dispatch, Namespace, Cache, Substrate, Loader, Hit
-  Validator). The vocabulary above follows it throughout.
-- [`docs/adr/`](docs/adr/) — the five decisions referenced above, recorded
+  Command, Event, Handler, Dead Letter, Outbox, Aggregate, Cron Job,
+  Schedule, Tick, Durable Job, Dispatch, Namespace, Cache, Substrate,
+  Loader, Hit Validator). The vocabulary above follows it throughout.
+- [`docs/adr/`](docs/adr/) — the six decisions referenced above, recorded
   in full.
 
 ## License
